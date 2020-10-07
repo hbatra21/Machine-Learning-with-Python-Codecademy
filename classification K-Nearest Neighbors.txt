@@ -1,0 +1,244 @@
+### n-dimension space(distance) ###
+
+def distance(movie1, movie2):
+  squared_difference = 0
+  for i in range(len(movie1)):
+    squared_difference += (movie1[i] - movie2[i]) ** 2
+    distance = (squared_difference) ** 0.5
+  return distance
+
+### K-Nearest Neighbor Algorithm: ####
+
+The K-Nearest Neighbor Algorithm:
+
+* Normalize the data
+* Find the k nearest neighbors
+* Classify the new point based on those neighbors
+
+###### min-max normaliztion for values of different scale ######
+* aim is to normalize the scale to a similar value
+
+def min_max_normalize(lst):
+  minimum = min(lst)
+  maximum = max(lst)
+  normalized = []
+  for value in lst:
+    result = (value - minimum)/(maximum - minimum)
+    normalized.append(result)
+  return normalized
+
+####### finding the nearest neighbors ######
+
+* In order to find the nearest neighbors(with k), we need to compare this new unclassified movie to every other movie in the dataset. => first, use distance formula
+
+def classify(unknown, dataset, k):
+  distances = []
+  for title in dataset:
+    distance_to_point = distance(dataset[title], unknown)
+    distances.append([distance_to_point, title])
+  distances.sort()
+  neighbors = distances[0:k]
+  return neighbors
+
+print(classify([.4, .2, .9], movie_dataset, 5))
+
+### Classify the new point based on those neighbors ###
+
+def classify(unknown, dataset, labels, k):
+  distances = []
+  num_good = 0
+  num_bad = 0
+  #Looping through all points in the dataset
+  for title in dataset:
+    movie = dataset[title]
+    distance_to_point = distance(movie, unknown)
+    #Adding the distance and point associated with that distance
+    distances.append([distance_to_point, title])
+  distances.sort()
+  #Taking only the k closest points
+  neighbors = distances[0:k]
+  for movie in neighbors:
+    title = movie[1]
+    if labels[title] == 0:
+      num_bad += 1
+    else:
+      num_good += 1
+  if num_good > num_bad:
+    return 1
+  else:
+    return 0
+
+print(classify([.4, .2, .9], movie_dataset, movie_labels, k = 5)) => predict the movie whether good or bad
+
+#### apply the algorithm in other movie #####
+
+* test with training set, and then compare to validate set
+
+print(validation_set["Bee Movie"])
+guess = classify(validation_set["Bee Movie"], training_set, training_labels, 5)
+print(guess)
+
+if guess == validation_labels["Bee Movie"]:
+  print("Correct!")
+else:
+  print("Wrong!")
+
+####
+
+* verfitting occurs when you rely too heavily on your training data; 
+* you assume that data in the real world will always behave exactly like your training data.
+=> problem: not enough data
+
+* Underfitting occurs when your classifier doesn’t pay enough attention to the small quirks in the training set. 
+=> problem: k too big
+
+#### validation accuracy ###
+
+def find_validation_accuracy(training_set, training_labels, validation_set, validation_labels, k):
+  num_correct = 0.0
+  for title in validation_set:
+    guess = classify(validation_set[title], training_set, training_labels, k)
+    if guess == validation_labels[title]:
+      num_correct += 1
+  return num_correct / len(validation_set)
+
+z = find_validation_accuracy(training_set, training_labels, validation_set, validation_labels, k=3)
+print(z)
+
+* the higher the validation_accuracy, the better the value of k
+
+#### classification modules from sklearn ####
+
+from movies import movie_dataset, labels
+from sklearn.neighbors import KNeighborsClassifier
+
+classifier = KNeighborsClassifier(n_neighbors = 5)
+
+classifier.fit(movie_dataset, labels)
+
+guess = classifier.predict([[.45, .2, .5], [.25, .8, .9],[.1, .1, .9]])
+print(guess)
+
+##### with regression ####
+
+from movies import movie_dataset, movie_ratings
+
+def distance(movie1, movie2):
+  squared_difference = 0
+  for i in range(len(movie1)):
+    squared_difference += (movie1[i] - movie2[i]) ** 2
+  final_distance = squared_difference ** 0.5
+  return final_distance
+
+def predict(unknown, dataset, movie_ratings, k):
+  distances = []
+  #Looping through all points in the dataset
+  for title in dataset:
+    movie = dataset[title]
+    distance_to_point = distance(movie, unknown)
+    #Adding the distance and point associated with that distance
+    distances.append([distance_to_point, title])
+  distances.sort()
+  #Taking only the k closest points
+  neighbors = distances[0:k]
+  sum = 0
+  for neighbor in neighbors:
+    title = neighbor[1]
+    sum += movie_ratings[title]
+  return sum/len(neighbors)
+
+print(movie_dataset["Life of Pi"])
+print(movie_ratings["Life of Pi"])
+print(predict([0.016, 0.300, 1.022], movie_dataset, movie_ratings, 5))
+
+##### weighted regression ######
+
+from movies import movie_dataset, movie_ratings
+
+def distance(movie1, movie2):
+  squared_difference = 0
+  for i in range(len(movie1)):
+    squared_difference += (movie1[i] - movie2[i]) ** 2
+  final_distance = squared_difference ** 0.5
+  return final_distance
+
+def predict(unknown, dataset, movie_ratings, k):
+  distances = []
+  #Looping through all points in the dataset
+  for title in dataset:
+    movie = dataset[title]
+    distance_to_point = distance(movie, unknown)
+    #Adding the distance and point associated with that distance
+    distances.append([distance_to_point, title])
+  distances.sort()
+  #Taking only the k closest points
+  neighbors = distances[0:k]
+  numerator = 0
+  denominator = 0
+  for neighbor in neighbors:
+    title = neighbor[1]
+    distance_to_neighbor = neighbor[0]
+    numerator += (movie_ratings[title] /  distance_to_neighbor)
+    denominator += 1 / distance_to_neighbor
+  return numerator / denominator 
+
+print(predict([0.016, 0.300, 1.022], movie_dataset, movie_ratings, 5))
+
+##### sckit-learn: kneighborregression module #####
+
+* weights = 'uniform' => equally in average
+* weights = "distance" => using weighted average
+* By using a weighted average, data points that are extremely similar to the input point will have more of a say in the final result.
+
+from movies import movie_dataset, movie_ratings
+from sklearn.neighbors import KNeighborsRegressor
+
+regressor = KNeighborsRegressor(n_neighbors = 5, weights = "distance")
+
+regressor.fit(movie_dataset, movie_ratings)
+
+guess = regressor.predict([[0.016, 0.300, 1.022], [0.0004092981, 0.283, 1.0112], [0.00687649, 0.235, 1.0112]])
+print(guess)
+
+#### classification project ####
+
+import codecademylib3_seaborn
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+import matplotlib.pyplot as plt
+
+breast_cancer_data = load_breast_cancer()
+print(breast_cancer_data.data[0])
+print(breast_cancer_data.feature_names)
+print(breast_cancer_data.target)
+print(breast_cancer_data.target_names)
+
+training_data, validation_data, training_labels, validation_labels = train_test_split(breast_cancer_data.data, breast_cancer_data.target, test_size = 0.2, random_state = 10000)
+
+print(len(training_data)) 
+print(len(training_labels))
+
+# calculate the accuracy of k with score
+accuracies = []
+for k in range(1, 101):
+  classifier = KNeighborsClassifier(n_neighbors = k)
+  classifier.fit(training_data, training_labels)
+  score = classifier.score(validation_data, validation_labels)
+  accuracies.append(score)
+
+k_list = list(range(1, 101))
+
+# plot a graph of k
+plt.plot(k_list, accuracies)
+plt.xlabel('k')
+plt.ylabel("Validation Accuracy")
+plt.title("Breast Cancer Classifier Accuracy")
+plt.show()
+
+### normalization #####
+
+* Min-max normalization: Guarantees all features will have the exact same scale but does not handle outliers well.
+* Z-score normalization: Handles outliers, but does not produce normalized data with the exact same scale.
+
+

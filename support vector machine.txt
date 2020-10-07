@@ -1,0 +1,161 @@
+* An SVM makes classifications by defining a decision boundary and then seeing what side of the boundary an unclassified point falls
+* A Support Vector Machine (SVM) is a powerful supervised machine learning model used for classification.
+
+import codecademylib3_seaborn
+import matplotlib.pyplot as plt
+import numpy as np
+from graph import ax, x_1, y_1, x_2, y_2
+
+#Top graph intercept and slope
+intercept_one = 8
+slope_one = -2
+
+x_vals = np.array(ax.get_xlim())
+y_vals = intercept_one + slope_one * x_vals
+plt.plot(x_vals, y_vals, '-')
+
+#Bottom Graph
+ax = plt.subplot(2, 1, 2)
+plt.title('Good Decision Boundary')
+ax.set_xlim(0, 10)
+ax.set_ylim(0, 10)
+
+plt.scatter(x_1, y_1, color = "b")
+plt.scatter(x_2, y_2, color = "r")
+
+#Change the intercept to separate the clusters
+intercept_two = 15
+slope_two = -2
+
+x_vals = np.array(ax.get_xlim())
+y_vals = intercept_two + slope_two * x_vals
+plt.plot(x_vals, y_vals, '-')
+
+plt.tight_layout()
+plt.show()
+
+### sklearn module ###
+
+from sklearn.svm import SVC
+from graph import points, labels
+
+classifier = SVC(kernel = 'linear')
+classifier.fit(points, labels)
+result = classifier.predict([[3, 4], [6, 7]])
+print(result)
+
+### example 2 ###
+
+import codecademylib3_seaborn
+import matplotlib.pyplot as plt
+from sklearn.svm import SVC
+from graph import points, labels, draw_points, draw_margin
+
+points.append([3, 3])
+labels.append(0)
+points.append([10,8])
+labels.append(1)
+points.append([7,6])
+labels.append(1)
+classifier = SVC(kernel='linear', C = 0.1)
+classifier.fit(points, labels)
+
+draw_points(points, labels)
+draw_margin(classifier)
+
+plt.show()
+
+####### using kernel for non-linearly seperable data ####
+
+import codecademylib3_seaborn
+from sklearn.svm import SVC
+from graph import points, labels
+from sklearn.model_selection import train_test_split
+
+training_data, validation_data, training_labels, validation_labels = train_test_split(points, labels, train_size = 0.8, test_size = 0.2, random_state = 100)
+
+classifier = SVC(kernel='poly', degree=2)
+classifier.fit(training_data,training_labels)
+result = classifier.score(validation_data,validation_labels)
+print(result)
+
+###### kernel poluy ###
+
+from sklearn.datasets import make_circles
+from sklearn.svm import SVC
+from sklearn.model_selection import train_test_split
+
+#Makes concentric circles
+points, labels = make_circles(n_samples=300, factor=.2, noise=.05, random_state = 1)
+
+#Makes training set and validation set.
+training_data, validation_data, training_labels, validation_labels = train_test_split(points, labels, train_size = 0.8, test_size = 0.2, random_state = 100)
+
+classifier = SVC(kernel = "linear", random_state = 1)
+classifier.fit(training_data, training_labels)
+print(classifier.score(validation_data, validation_labels))
+
+print(training_data[0])
+
+new_training = []
+new_validation = []
+for point in training_data:
+  new_training.append([((2)**0.5)* point[0] *point[1], point[0]**2, point[1]**2])
+for data in validation_data:
+  new_validation.append([((2)**0.5)* data[0] *data[1], data[0]**2, data[1]**2])
+
+classifier.fit(new_training, training_labels)
+result = classifier.score(new_validation,validation_labels)
+print(result)
+
+### Radial Bias Function Kernel ###
+
+* An rbf kernel transforms two-dimensional points into points with an infinite number of dimensions!
+
+from data import points, labels
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+
+training_data, validation_data, training_labels, validation_labels = train_test_split(points, labels, train_size = 0.8, test_size = 0.2, random_state = 100)
+
+classifier = SVC(kernel='rbf', gamma=0.1)
+
+##### baseball project ####
+
+import codecademylib3_seaborn
+import matplotlib.pyplot as plt
+from sklearn.svm import SVC
+from sklearn.model_selection import train_test_split
+from svm_visualization import draw_boundary
+from players import aaron_judge, jose_altuve, david_ortiz
+
+fig, ax = plt.subplots()
+#print(aaron_judge.columns)
+#print(aaron_judge.description.unique())
+#print(aaron_judge.type.unique())
+
+def svc(dataset):
+  dataset['type'] = dataset['type'].map({'S':1, "B":0})
+#print(aaron_judge['type'])
+#print(aaron_judge['plate_x'])
+  dataset = dataset.dropna(subset=['type', 'plate_x', 'plate_z'])
+
+#create the graph
+  plt.scatter(x=dataset['plate_x'], y=dataset['plate_z'], c=dataset['type'], cmap=plt.cm.coolwarm, alpha=0.25)
+
+  training_set, validation_set = train_test_split(dataset, random_state=1)
+
+  classifier = SVC(kernel='rbf', gamma=3, C=1)
+  classifier.fit(training_set[['plate_x', 'plate_z']], training_set['type'])
+  draw_boundary(ax, classifier)
+  ax.set_ylim(-2, 6)
+  ax.set_xlim(-3, 3)
+  plt.show()
+  return print(classifier.score(validation_set[['plate_x', 'plate_z']], validation_set['type']))
+
+svc(jose_altuve)
+svc(david_ortiz)
+
+
+classifier.fit(training_data, training_labels)
+print(classifier.score(validation_data, validation_labels))

@@ -1,0 +1,141 @@
+##### begging ####
+
+from tree import build_tree, print_tree, car_data, car_labels
+import random
+random.seed(4)
+
+tree = build_tree(car_data, car_labels)
+#print_tree(tree)
+
+indices = []
+for i in range(1000):
+  indices.append(random.randint(0, 999))
+
+data_subset = []
+labels_subset = []
+for index in indices:
+  data_subset.append(car_data[index])
+  labels_subset.append(car_labels[index])
+  
+subset_tree = build_tree(data_subset, labels_subset)
+#print_tree(subset_tree)
+
+#### find the best split ####
+
+from tree import car_data, car_labels, split, information_gain
+import random
+import numpy as np
+np.random.seed(1)
+random.seed(4)
+
+def find_best_split(dataset, labels):
+    best_gain = 0
+    best_feature = 0
+    #Create features here
+    features = np.random.choice(len(dataset[0]), 3, replace = False) 
+    for feature in features:
+        data_subsets, label_subsets = split(dataset, labels, feature)
+        gain = information_gain(labels, label_subsets)
+        if gain > best_gain:
+            best_gain, best_feature = gain, feature
+    return best_gain, best_feature
+  
+indices = [random.randint(0, 999) for i in range(1000)]
+
+data_subset = [car_data[index] for index in indices]
+labels_subset = [car_labels[index] for index in indices]
+
+print(find_best_split(data_subset, labels_subset))
+
+### 
+
+from tree import build_tree, print_tree, car_data, car_labels, classify
+import random
+random.seed(4)
+
+# The features are the price of the car, the cost of maintenance, the number of doors, the number of people the car can hold, the size of the trunk, and the safety rating
+unlabeled_point = ['high', 'vhigh', '3', 'more', 'med', 'med']
+
+predictions = []
+for i in range(20):
+  indices = [random.randint(0, 999) for i in range(1000)]
+  data_subset = [car_data[index] for index in indices]
+  labels_subset = [car_labels[index] for index in indices]
+  subset_tree = build_tree(data_subset, labels_subset)
+  predictions.append(classify(unlabeled_point, subset_tree))
+  print(predictions)
+
+final_prediction = max(predictions, key=predictions.count)
+print(final_prediction)
+
+### random forest multiple tree #####
+
+from tree import training_data, training_labels, testing_data, testing_labels, make_random_forest, make_single_tree, classify
+import numpy as np
+import random
+np.random.seed(1)
+random.seed(1)
+
+tree = make_single_tree(training_data, training_labels)
+single_tree_correct = 0
+
+forest = make_random_forest(40, training_data, training_labels)
+forest_correct = 0
+
+for i in range(len(testing_data)):
+  prediction = classify(testing_data[i], tree)
+  predictions = []
+  if prediction == testing_labels[i]:
+    single_tree_correct += 1
+  for forest_tree in forest:
+    predictions.append(classify(testing_data[i], forest_tree))
+    forest_prediction = max(predictions,key=predictions.count)
+  if forest_prediction == testing_labels[i]:
+    forest_correct += 1
+print(single_tree_correct/len(testing_data))
+print(forest_correct/len(testing_data))
+
+#### sklearn module ####
+
+def warn(*args, **kwargs):
+    pass
+import warnings
+warnings.warn = warn
+from cars import training_points, training_labels, testing_points, testing_labels
+import warnings
+from sklearn.ensemble import RandomForestClassifier
+
+classifier = RandomForestClassifier(n_estimators=2000, random_state=0)
+classifier.fit(training_points, training_labels)
+print(classifier.score(testing_points, testing_labels))
+
+#### project ###
+
+def warn(*args, **kwargs):
+    pass
+import warnings
+warnings.warn = warn
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn import tree
+from sklearn.ensemble import RandomForestClassifier
+
+income_data = pd.read_csv('income.csv', header = 0, delimiter = ", ")
+# print(income_data.iloc[0])
+
+labels = income_data['income']
+
+income_data["sex-int"] = income_data["sex"].apply(lambda row: 0 if row == "Male" else 1)
+
+income_data["country-int"] = income_data["native-country"].apply(lambda row: 0 if row == "United States" else 1)
+
+data = income_data[["age", "capital-gain", "capital-loss", "hours-per-week", "sex-int", "country-int"]]
+
+train_data, test_data, train_labels, test_labels = train_test_split(data, labels, random_state = 1)
+
+forest = RandomForestClassifier(random_state = 1)
+forest.fit(train_data, train_labels)
+print(forest.score(test_data, test_labels))
+
+#print(income_data["native-country"].value_counts())

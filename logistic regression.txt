@@ -1,0 +1,174 @@
+Logistic Regression is used to perform binary classification, 
+predicting whether a data sample belongs to a positive (present) class, 
+labeled 1 and the negative (absent) class, labeled 0.
+
+#### log-odd #### 
+
+def log_odds(features, coefficients, intercept):
+  return np.dot(features, coefficients) + intercept
+
+#### sigmoid function for log odds (show positive probability only) ###
+z = calculated log odd
+
+def sigmoid(z):
+  denominator = 1 + np.exp(-z)
+  return 1/denominator
+
+#### log loss #####
+A loss function measures how well a machine learning model makes predictions.
+adjust coefficient and intercept to reduce log loss
+
+# Function to calculate log-loss
+def log_loss(probabilities,actual_class):
+  return np.sum(-(1/actual_class.shape[0])*(actual_class*np.log(probabilities) + (1-actual_class)*np.log(1-probabilities)))
+
+# Print passed_exam here
+print(passed_exam)
+
+# Calculate and print loss_1 here
+loss_1 = log_loss(probabilities, passed_exam)
+
+### usage of threshold ####
+A Classification Threshold is used to determine the probabilistic cutoff for where a data sample is classified as belonging to a positive or negative class
+
+# Create predict_class() function here
+def predict_class(features, coefficients, intercept, threshold):
+  calculated_log_odds = log_odds(features, coefficients,intercept)
+
+#### titanic project => test survival rate ####
+
+import codecademylib3_seaborn
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+# Load the passenger data
+passengers = pd.read_csv('passengers.csv')
+print(passengers)
+
+# Update sex column to numerical
+passengers['Sex'] = passengers['Sex'].map({'female': 1, 'male': 0})
+
+# Fill the nan values in the age column
+print(passengers['Age'].values)
+passengers['Age'].fillna(value=passengers['Age'].mean(), inplace=True)
+# Create a first class column
+passengers['FirstClass'] = passengers['Pclass'].apply(lambda x: 1 if x == 1 else 0)
+
+# Create a second class column
+passengers['SecondClass'] = passengers['Pclass'].apply(lambda x: 1 if x == 2 else 0)
+print(passengers.head())
+
+# Select the desired features
+features = passengers[['Sex', 'Age', 'FirstClass', 'SecondClass']]
+survival = passengers['Survived']
+
+# Perform train, test, split
+X_train, X_test, y_train, y_test = train_test_split(features, survival, test_size=0.2)
+
+# Scale the feature data so it has mean = 0 and standard deviation = 1
+#Regularization
+
+scaler = StandardScaler() 
+train_features = scaler.fit_transform(X_train)
+test_features = scaler.transform(X_test)
+
+# Create and train the model
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+# Score the model on the train data
+train_score = model.score(X_train, y_train)
+
+# Score the model on the test data
+test_score = model.score(X_test, y_test)
+print(train_score)
+print(test_score)
+
+# Analyze the coefficients
+coefficient = model.coef_
+intercept = model.intercept_
+print(coefficient)
+
+print(list(zip(['Sex','Age','FirstClass','SecondClass'],model.coef_[0])))
+
+# Sample passenger features
+Jack = np.array([0.0,20.0,0.0,0.0])
+Rose = np.array([1.0,17.0,1.0,0.0])
+You = np.array([0.0,24,0.0,1.0])
+
+# Combine passenger arrays
+combine_array = np.array([Jack, Rose, You])
+
+# Scale the sample passenger features
+sample_passengers = scaler.transform(combine_array)
+print(sample_passengers)
+
+# Make survival predictions!
+guess = model.predict(sample_passengers)
+print(guess)
+probability = model.predict_proba(sample_passengers)
+print(probability)
+  probabilities = sigmoid(calculated_log_odds)
+  return np.where(probabilities >= threshold, 1, 0)
+
+# Make final classifications on Codecademy University data here
+final_results = predict_class(hours_studied, calculated_coefficients, intercept, 0.5)
+
+#### using sklearn module to create logistic regression ###
+
+** sklearn‘s Logistic Regression requires normalized feature data due to a technique called Regularization that it uses under the hood.
+
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+from exam import hours_studied_scaled, passed_exam, exam_features_scaled_train, exam_features_scaled_test, passed_exam_2_train, passed_exam_2_test, guessed_hours_scaled
+
+# Create and fit logistic regression model here
+model = LogisticRegression()
+
+# Save the model coefficients and intercept here
+model.fit(hours_studied_scaled, passed_exam)
+calculated_coefficients = model.coef_
+intercept = model.intercept_
+
+# Predict the probabilities of passing for next semester's students here
+passed_predictions = model.predict_proba(guessed_hours_scaled)
+
+# Create a new model on the training data with two features here
+model_2 = LogisticRegression()
+model_2.fit(exam_features_scaled_train, passed_exam_2_train)
+
+# Predict whether the students will pass here
+passed_predictions_2 = model_2.predict(exam_features_scaled_test)
+
+### feature class ####
+
+* Features with larger, positive coefficients will increase the probability of a data sample belonging to the positive class
+* Features with larger, negative coefficients will decrease the probability of a data sample belonging to the positive class
+* Features with small, positive or negative coefficients have minimal impact on the probability of a data sample belonging to the positive class
+
+***
+
+import codecademylib3_seaborn
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LogisticRegression
+from exam import exam_features_scaled, passed_exam_2
+
+# Train a sklearn logistic regression model on the normalized exam data
+model_2 = LogisticRegression()
+model_2.fit(exam_features_scaled,passed_exam_2)
+
+# Assign and update coefficients
+coefficients = model_2.coef_
+coefficients = coefficients.tolist()[0]
+
+# Plot bar graph
+plt.bar([1,2], coefficients)
+plt.xticks([1,2], ['number of hours studied', 'number of previous math courses'])
+plt.xlabel('feature')
+plt.ylabel('coefficients')
+plt.show()

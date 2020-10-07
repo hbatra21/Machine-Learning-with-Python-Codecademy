@@ -1,0 +1,309 @@
+### intro ###
+
+class Perceptron:
+  def __init__(self, num_inputs=2, weights=[1,1]):
+    # complete the default constructor method
+    self.num_inputs = num_inputs
+    self.weights = weights
+    
+cool_perceptron = Perceptron()
+print(cool_perceptron)  
+
+### step 1 weighted sum ###
+
+class Perceptron:
+  def __init__(self, num_inputs=2, weights=[2,1]):
+    self.num_inputs = num_inputs
+    self.weights = weights
+    
+  def weighted_sum(self, inputs):
+    # create variable to store weighted sum
+    weighted_sum = 0
+    for i in range(self.num_inputs):
+      weighted_sum +=  self.weights[i] * inputs[i]
+    return weighted_sum
+
+cool_perceptron = Perceptron()
+print(cool_perceptron.weighted_sum([24, 55]))
+
+### step 2 activation function ####
+
+class Perceptron:
+  def __init__(self, num_inputs=2, weights=[1,1]):
+    self.num_inputs = num_inputs
+    self.weights = weights
+    
+  def weighted_sum(self, inputs):
+    weighted_sum = 0
+    for i in range(self.num_inputs):
+      weighted_sum += self.weights[i]*inputs[i]
+    return weighted_sum
+  
+  def activation(self, weighted_sum):
+    #Complete this method
+    if weighted_sum >= 0:
+      return 1
+    elif weighted_sum <= 0:
+      return -1
+
+cool_perceptron = Perceptron()
+print(cool_perceptron.weighted_sum([24, 55]))
+print(cool_perceptron.activation(52))
+
+#### train the preceptron with training set ###
+
+import codecademylib3_seaborn
+import matplotlib.pyplot as plt
+import random
+
+def generate_training_set(num_points):
+	x_coordinates = [random.randint(0, 50) for i in range(num_points)]
+	y_coordinates = [random.randint(0, 50) for i in range(num_points)]
+	training_set = dict()
+	for x, y in zip(x_coordinates, y_coordinates):
+		if x <= 45-y:
+			training_set[(x,y)] = 1
+		elif x > 45-y:
+			training_set[(x,y)] = -1
+	return training_set
+
+training_set = generate_training_set(30)
+
+x_plus = []
+y_plus = []
+x_minus = []
+y_minus = []
+
+for data in training_set:
+	if training_set[data] == 1:
+		x_plus.append(data[0])
+		y_plus.append(data[1])
+	elif training_set[data] == -1:
+		x_minus.append(data[0])
+		y_minus.append(data[1])
+    
+fig = plt.figure()
+ax = plt.axes(xlim=(-25, 75), ylim=(-25, 75))
+
+plt.scatter(x_plus, y_plus, marker = '+', c = 'green', s = 128, linewidth = 2)
+plt.scatter(x_minus, y_minus, marker = '_', c = 'red', s = 128, linewidth = 2)
+
+plt.title("Training Set")
+
+plt.show()
+
+#### find the training error ###
+
+class Perceptron:
+  def __init__(self, num_inputs=2, weights=[1,1]):
+    self.num_inputs = num_inputs
+    self.weights = weights
+    
+  def weighted_sum(self, inputs):
+    weighted_sum = 0
+    for i in range(self.num_inputs):
+      weighted_sum += self.weights[i]*inputs[i]
+    return weighted_sum
+  
+  def activation(self, weighted_sum):
+    if weighted_sum >= 0:
+      return 1
+    if weighted_sum < 0:
+      return -1
+    
+  def training(self, training_set):
+    for inputs in training_set:                   
+      prediction = self.activation(self.weighted_sum(inputs))
+      actual = training_set[inputs]
+      error = actual - prediction
+      
+cool_perceptron = Perceptron()
+print(cool_perceptron.weighted_sum([24, 55]))
+print(cool_perceptron.activation(52))
+
+#### preceptron algorithm #####
+
+optimise the error with the formular: weight = weight + (error*inputs)
+
+class Perceptron:
+  def __init__(self, num_inputs=2, weights=[1,1]):
+    self.num_inputs = num_inputs
+    self.weights = weights
+    
+  def weighted_sum(self, inputs):
+    weighted_sum = 0
+    for i in range(self.num_inputs):
+      weighted_sum += self.weights[i]*inputs[i]
+    return weighted_sum
+  
+  def activation(self, weighted_sum):
+    if weighted_sum >= 0:
+      return 1
+    if weighted_sum < 0:
+      return -1
+    
+  def training(self, training_set):
+    foundLine = False
+    while not foundLine:
+      total_error = 0
+      for inputs in training_set:
+        prediction = self.activation(self.weighted_sum(inputs))
+        actual = training_set[inputs]
+        error = actual - prediction
+        total_error += abs(error)
+        for i in range(self.num_inputs):
+          self.weights[i] += (error*inputs[i])
+      if total_error == 0:
+        foundLine = True
+      
+cool_perceptron = Perceptron()
+small_training_set = {(0,3):1, (3,0):-1, (0,-3):-1, (-3,0):1}
+
+cool_perceptron.training(small_training_set)
+
+### biased_weight #####
+
+add one more input at the list
+
+class Perceptron:
+  def __init__(self, num_inputs=3, weights=[1,1,1]):
+    self.num_inputs = num_inputs
+    self.weights = weights
+    
+  def weighted_sum(self, inputs):
+    weighted_sum = 0
+    for i in range(self.num_inputs):
+      weighted_sum += self.weights[i]*inputs[i]
+    return weighted_sum
+  
+  def activation(self, weighted_sum):
+    if weighted_sum >= 0:
+      return 1
+    if weighted_sum < 0:
+      return -1
+    
+  def training(self, training_set):
+    foundLine = False
+    while not foundLine:
+      total_error = 0
+      for inputs in training_set:
+        prediction = self.activation(self.weighted_sum(inputs))
+        actual = training_set[inputs]
+        error = actual - prediction
+        total_error += abs(error)
+        for i in range(self.num_inputs):
+          self.weights[i] += error*inputs[i]
+      if total_error == 0:
+        foundLine = True
+      
+cool_perceptron = Perceptron()
+
+#### Representing a Line ###
+
+import codecademylib3_seaborn
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import random
+from perceptron import Perceptron, lines
+
+def generate_training_set(num_points):
+	x_coordinates = [random.randint(0, 50) for i in range(num_points)]
+	y_coordinates = [random.randint(0, 50) for i in range(num_points)]
+	training_set = dict()
+	for x, y in zip(x_coordinates, y_coordinates):
+		if x <= 45-y:
+			training_set[(x,y,1)] = 1
+		elif x > 45-y:
+			training_set[(x,y,1)] = -1
+	return training_set
+
+training_set = generate_training_set(30)
+
+x_plus = []
+y_plus = []
+x_minus = []
+y_minus = []
+
+for data in training_set:
+	if training_set[data] == 1:
+		x_plus.append(data[0])
+		y_plus.append(data[1])
+	elif training_set[data] == -1:
+		x_minus.append(data[0])
+		y_minus.append(data[1])
+
+perceptron = Perceptron()
+perceptron.training(training_set)
+
+fig = plt.figure()
+ax = plt.axes(xlim=(-25, 75), ylim=(-25, 75))
+line, = ax.plot([], [], lw=2)
+
+fig.patch.set_facecolor('#ffc107')
+
+plt.scatter(x_plus, y_plus, marker = '+', c = 'green', s = 128, linewidth = 2)
+plt.scatter(x_minus, y_minus, marker = '_', c = 'red', s = 128, linewidth = 2)
+
+plt.title('Iteration: 0')
+
+
+def animate(i):
+    print(i)
+    line.set_xdata(lines[i][0])  # update the data
+    line.set_ydata(lines[i][1])  # update the data
+    return line,
+
+def init():
+    line.set_data([], [])
+    return line,
+
+ani = animation.FuncAnimation(fig, animate, frames=1, init_func=init, interval=50, blit=True, repeat=False)
+
+plt.show()
+
+### perceptron logic gate project ###
+
+import codecademylib3_seaborn
+from sklearn.linear_model import Perceptron
+import matplotlib.pyplot as plt
+import numpy as np
+from itertools import product
+
+# input and result for AND
+data_1 = [[0,0], [0,1], [1,0], [1,1]]
+labels_1 = [0, 0, 0, 1]
+
+# input and result for XOR
+data_2 = [[0,0], [0,1], [1,0], [1,1]]
+labels_2 = [0, 1, 1, 0]
+
+# input and result for OR
+data_3 = [[0,0], [1,0], [0,1], [1,1]]
+labels_3 = [0, 1, 1, 1]
+
+# plot
+x = [point[0] for point in data_3]
+y = [point[1] for point in data_3]
+plt.scatter(x, y, c=labels_3)
+plt.show()
+
+classifier = Perceptron(max_iter=40)
+classifier.fit(data_3, labels_3)
+print(classifier.score(data_3, labels_3))
+
+distance = classifier.decision_function([[0, 0], [1, 1], [0.5, 0.5]])
+print(distance)
+
+# a list of 100 evenly spaced decimals between 0 and 1
+x_values = np.linspace(0, 1, 100)
+y_values = np.linspace(0, 1, 100)
+
+point_grid = list(product(x_values, y_values))
+distances = classifier.decision_function(point_grid)
+abs_distances = [abs(point) for point in distances]
+distances_matrix = np.reshape(abs_distances, (100, 100))
+
+#create a heat map
+heatmap = plt.pcolormesh(x_values, y_values, distances_matrix)
+plt.colorbar(heatmap)
+plt.show()

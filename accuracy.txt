@@ -1,0 +1,59 @@
+### finding the accuracy ####
+
+labels = [1, 0, 0, 1, 1, 1, 0, 1, 1, 1]
+guesses = [0, 1, 1, 1, 1, 0, 1, 0, 1, 0]
+
+true_positives = 0 # both = 1
+true_negatives = 0 # both = 0
+false_positives = 0 # guess = 1
+false_negatives = 0 # guess = 0
+
+for i in range(len(guesses)):
+    if guesses[i] == 1 and labels[i] == 1:
+      true_positives += 1
+    elif guesses[i] == 0 and labels[i] == 0:
+      true_negatives += 1
+    elif guesses[i] == 1 and labels[i] == 0:
+      false_positives += 1
+    elif guesses[i] == 0 and labels[i] == 1:
+      false_negatives += 1
+accuracy = (true_positives + true_negatives)/(true_positives + true_negatives + false_positives + false_negatives)
+print(accuracy)
+
+#### recall ######
+
+return recall always in 1 
+
+when the result always return false
+
+recall = True Positives / (True Positives + False Negatives)
+
+#### precision #####
+
+True Positives / (True Positives + False Positives)
+
+#### f1 score #####
+
+f_1 = 2 * precision * recall / (recall + precision)
+print(f_1) => more accurate
+
+#### summary ####
+
+* Accuracy measures how many classifications your algorithm got correct out of every classification it made.
+* Recall measures the percentage of the relevant items your classifier was able to successfully find.
+* Precision measures the percentage of items your classifier found that were actually relevant.
+* Precision and recall are tied to each other. As one goes up, the other will go down.
+* F1 score is a combination of precision and recall.
+* F1 score will be low if either precision or recall is low.
+
+##### find the accuracy with sckit-learn module ####
+
+from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
+
+labels = [1, 0, 0, 1, 1, 1, 0, 1, 1, 1]
+guesses = [0, 1, 1, 1, 1, 0, 1, 0, 1, 0]
+
+print(accuracy_score(labels, guesses))
+print(recall_score(labels, guesses))
+print(precision_score(labels, guesses))
+print(f1_score(labels, guesses))

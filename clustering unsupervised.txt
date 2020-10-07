@@ -1,0 +1,737 @@
+##### example ###
+
+import codecademylib3_seaborn
+import matplotlib.pyplot as plt
+import numpy as np 
+
+from os.path import join, dirname, abspath
+from mpl_toolkits.mplot3d import Axes3D
+
+from sklearn.cluster import KMeans
+from sklearn import datasets
+
+iris = datasets.load_iris()
+
+x = iris.data
+y = iris.target
+
+fignum = 1
+
+# Plot the ground truthd
+
+fig = plt.figure(fignum, figsize=(4, 3))
+
+ax = Axes3D(fig, rect=[0, 0, .95, 1], elev=48, azim=134)
+
+for name, label in [('Zombies', 0),
+                    ('Programmers', 1),
+                    ('Vampires', 2)]:
+    ax.text3D(x[y == label, 3].mean(),
+              x[y == label, 0].mean(),
+              x[y == label, 2].mean() + 2, name,
+              horizontalalignment='center',
+              bbox=dict(alpha=.2, edgecolor='w', facecolor='w'))
+
+# Reorder the labels to have colors matching the cluster results
+
+y = np.choose(y, [1, 2, 0]).astype(np.float)
+ax.scatter(x[:, 3], x[:, 0], x[:, 2], c=y, edgecolor='k')
+
+ax.w_xaxis.set_ticklabels([])
+ax.w_yaxis.set_ticklabels([])
+ax.w_zaxis.set_ticklabels([])
+
+ax.set_xlabel('hates sunlight')
+ax.set_ylabel('likes garlic')
+ax.set_zlabel('canine teeth (in)')
+
+ax.set_title('')
+ax.dist = 12
+
+# Add code here:
+plt.show()
+
+#### first step of k-mean ####
+
+*Place k random centroids for the initial clusters.
+
+import codecademylib3_seaborn
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn import datasets
+
+iris = datasets.load_iris()
+
+samples = iris.data
+
+x = samples[:,0]
+y = samples[:,1]
+
+# Number of clusters
+k = 3
+
+# X coordinates of random centroids
+centroids_x = np.random.uniform(min(x), max(x), size=k)
+
+# Y coordinates of random centroids
+centroids_y = np.random.uniform(min(y), max(y), size=k)
+
+# Create centroids array
+centriods = np.array(list(zip(centroids_x, centroids_y)))
+print(centriods)
+
+# Make a scatter plot of x, y
+plt.scatter(x,y)
+plt.xlabel('x')
+plt.ylabel('y')
+
+# Make a scatter plot of the centroids
+plt.scatter(centroids_x, centroids_y)
+plt.xlabel('centroids_x')
+plt.ylabel('centroids_y')
+
+# Display plot
+plt.show()
+
+#### step 2 ####
+
+# Step 2: Assign samples to nearest centroid
+
+# Distance formula
+def distance(a, b):
+  one = (a[0] - b[0]) ** 2
+  two = (a[1] - b[1]) ** 2
+  distance = (one + two) ** 0.5
+  return distance
+
+# Cluster labels for each point (either 0, 1, or 2)
+labels = np.zeros(len(samples))
+
+# Distances to each centroid
+distances = np.zeros(k)
+
+# Assign to the closest centroid
+for i in range(len(samples)):
+  distances[0] = distance(sepal_length_width[i], centroids[0])
+  distances[1] = distance(sepal_length_width[i], centroids[1])
+  distances[2] = distance(sepal_length_width[i], centroids[2])
+  cluster = np.argmin(distances)
+  labels[i] = cluster
+
+# Print labels
+print(labels)
+
+#### assign new centroids ###
+
+# Step 3: Update centroids
+centroids_old = deepcopy(centroids)
+
+for i in range(k):
+  points = [sepal_length_width[j] for j in range(len(sepal_length_width)) if labels[i] == j]
+  centroids[i] = np.mean(points, axis=0)
+
+print(centroids_old)
+print(centroids)
+
+#### step 4: iterate step 2 and 3 until convergence ##
+
+import codecademylib3_seaborn
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn import datasets
+from copy import deepcopy
+
+iris = datasets.load_iris()
+
+samples = iris.data
+
+x = samples[:,0]
+y = samples[:,1]
+
+sepal_length_width = np.array(list(zip(x, y)))
+
+# Step 1: Place K random centroids
+
+k = 3
+
+centroids_x = np.random.uniform(min(x), max(x), size=k)
+centroids_y = np.random.uniform(min(y), max(y), size=k)
+
+centroids = np.array(list(zip(centroids_x, centroids_y)))
+
+def distance(a, b):
+  one = (a[0] - b[0]) ** 2
+  two = (a[1] - b[1]) ** 2
+  distance = (one + two) ** 0.5
+  return distance
+
+# To store the value of centroids when it updates
+centroids_old = np.zeros(centroids.shape)
+
+# Cluster labeles (either 0, 1, or 2)
+labels = np.zeros(len(samples))
+
+distances = np.zeros(3)
+
+# Initialize error:
+error = np.zeros(3)
+error[0] = distance(centroids[0], centroids_old[0])
+error[1] = distance(centroids[1], centroids_old[1])
+error[2] = distance(centroids[2], centroids_old[2])
+
+# Repeat Steps 2 and 3 until convergence:
+while error.all() != 0:
+
+# Step 2: Assign samples to nearest centroid
+
+  for i in range(len(samples)):
+    distances[0] = distance(sepal_length_width[i], centroids[0])
+    distances[1] = distance(sepal_length_width[i], centroids[1])
+    distances[2] = distance(sepal_length_width[i], centroids[2])
+    cluster = np.argmin(distances)
+    labels[i] = cluster
+
+# Step 3: Update centroids
+
+  centroids_old = deepcopy(centroids)
+
+  for i in range(3):
+    points = [sepal_length_width[j] for j in range(len(sepal_length_width)) if labels[j] == i]
+    centroids[i] = np.mean(points, axis=0)
+  
+  error[0] = distance(centroids[0], centroids_old[0])
+  error[1] = distance(centroids[1], centroids_old[1])
+  error[2] = distance(centroids[2], centroids_old[2])
+
+# while loop ends
+colors = ['r', 'g', 'b']
+
+for i in range(k):
+  points = np.array([sepal_length_width[j] for j in range(len(samples)) if labels[j] == i])
+  plt.scatter(points[:, 0], points[:, 1], c=colors[i], alpha=0.5)
+
+plt.scatter(centroids[:, 0], centroids[:, 1], marker='D', s=150)
+
+plt.xlabel('sepal length (cm)')
+plt.ylabel('sepal width (cm)')
+
+plt.show()
+
+### using scikit-learn module ####
+
+import codecademylib3_seaborn
+import matplotlib.pyplot as plt
+from sklearn import datasets
+
+# From sklearn.cluster, import KMeans class
+from sklearn.cluster import KMeans
+
+iris = datasets.load_iris()
+
+samples = iris.data
+
+# Use KMeans() to create a model that finds 3 clusters
+model = KMeans(n_clusters = 3)
+
+# Use .fit() to fit the model to samples
+model.fit(samples)
+
+# Use .predict() to determine the labels of samples 
+labels = model.predict(samples)
+
+# Print the labels
+print(labels)
+
+#### feed in new samples ###
+
+import codecademylib3_seaborn
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn import datasets
+from sklearn.cluster import KMeans
+
+iris = datasets.load_iris()
+
+samples = iris.data
+
+model = KMeans(n_clusters=3)
+
+model.fit(samples)
+
+# Store the new Iris measurements
+new_samples = np.array([[5.7, 4.4, 1.5, 0.4],
+   [6.5, 3. , 5.5, 0.4],
+   [5.8, 2.7, 5.1, 1.9]])
+
+# Predict labels for the new_samples
+labels = model.predict(new_samples)
+print(labels)
+
+#### plot after kmean ###
+
+import codecademylib3_seaborn
+import matplotlib.pyplot as plt
+from sklearn import datasets
+from sklearn.cluster import KMeans
+
+iris = datasets.load_iris()
+
+samples = iris.data
+
+model = KMeans(n_clusters=3)
+
+model.fit(samples)
+
+labels = model.predict(samples)
+
+print(labels)
+
+# Make a scatter plot of x and y and using labels to define the colors
+x = samples[:,0]
+y = samples[:,1]
+
+plt.scatter(x, y, c=labels, alpha=0.5)
+plt.show()
+
+#### evaluation of the result ####
+
+import codecademylib3_seaborn
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn import datasets
+from sklearn.cluster import KMeans
+import pandas as pd
+
+iris = datasets.load_iris()
+
+samples = iris.data
+
+target = iris.target
+
+model = KMeans(n_clusters=3)
+
+model.fit(samples)
+
+labels = model.predict(samples)
+
+# Code starts here:
+species = np.chararray(target.shape, itemsize=150)
+
+for i in range(len(samples)):
+  if target[i] == 0:
+    species[i] = 'setosa'
+  elif target[i] == 1:
+    species[i] = 'versicolor'
+  elif target[i] == 2:
+    species[i] = 'virginica'
+
+df = pd.DataFrame({'labels': labels, 'species': species})
+
+print(df)
+
+ct = pd.crosstab(df['labels'], df['species'])
+print(ct)
+
+### find the number of clusters k which is optimal ###
+
+import codecademylib3_seaborn
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from sklearn import datasets
+from sklearn.cluster import KMeans
+
+iris = datasets.load_iris()
+
+samples = iris.data
+
+# Code Start here:
+num_clusters = list(range(1, 9))
+inertias = []
+
+for num in num_clusters:
+  model = KMeans(n_clusters = num)
+  model.fit(samples)
+  inertias.append(model.inertia_)
+
+plt.plot(num_clusters, inertias, '-o')
+
+plt.xlabel('Number of Clusters (k)')
+plt.ylabel('Inertia')
+
+plt.show()
+
+k = 3 is optimal number
+
+### introduce to K-mean ++ ####
+
+import codecademylib3_seaborn
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from sklearn.cluster import KMeans
+
+import random
+import timeit
+
+mu = 1
+std = 0.5
+
+np.random.seed(100)
+
+xs = np.append(np.append(np.append(np.random.normal(0.25,std,100), np.random.normal(0.75,std,100)), np.random.normal(0.25,std,100)), np.random.normal(0.75,std,100))
+
+ys = np.append(np.append(np.append(np.random.normal(0.25,std,100), np.random.normal(0.25,std,100)), np.random.normal(0.75,std,100)), np.random.normal(0.75,std,100))
+
+values = list(zip(xs, ys))
+
+
+
+model = KMeans(init='random', n_clusters=2)
+results = model.fit_predict(values)
+print("The inertia of model that randomly initialized centroids is " + str(model.inertia_))
+
+
+
+colors = ['#6400e4', '#ffc740']
+plt.subplot(211)
+for i in range(2):
+  points = np.array([values[j] for j in range(len(values)) if results[j] == i])
+  plt.scatter(points[:, 0], points[:, 1], c=colors[i], alpha=0.6)
+
+plt.title('Codecademy Mobile Feedback - Centroids Initialized Randomly')
+
+plt.xlabel('Learn Python')
+plt.ylabel('Learn SQL')
+
+plt.subplot(212)
+model = KMeans( n_clusters=2)
+results = model.fit_predict(values)
+print("The inertia of model that initialized the centroids using KMeans++ is " + str(model.inertia_))
+
+
+
+colors = ['#6400e4', '#ffc740']
+
+for i in range(2):
+  points = np.array([values[j] for j in range(len(values)) if results[j] == i])
+  plt.scatter(points[:, 0], points[:, 1], c=colors[i], alpha=0.6)
+
+plt.title('Codecademy Mobile Feedback - Centroids Initialized Using KMeans++')
+
+plt.xlabel('Learn Python')
+plt.ylabel('Learn SQL')
+
+plt.tight_layout()
+plt.show()
+
+#### characteristic of KMean ++ ####
+
+The K-Means++ algorithm replaces Step 1 of the K-Means algorithm and adds the following:
+
+    1.1 The first cluster centroid is randomly picked from the data points.
+    1.2 For each remaining data point, the distance from the point to its nearest cluster centroid is calculated.
+    1.3 The next cluster centroid is picked according to a probability proportional to the distance of each point to its nearest cluster centroid. This makes it likely for the next cluster centroid to be far away from the already initialized centroids.
+
+* Notice that the centroids created by K-Means++ are more spaced out.
+
+#### KMean ++ in scikit-learn ######
+
+option 1: test = KMeans(n_clusters=6, init='k-means++')
+option 2: test = KMeans(n_clusters=6)
+* init=k-means++ is actually default in scikit-learn.
+
+#
+
+import codecademylib3_seaborn
+def warn(*args, **kwargs):
+    pass
+import warnings
+warnings.warn = warn
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn import datasets
+from copy import deepcopy
+from sklearn.cluster import KMeans 
+
+x = [1, 1, 4, 4]
+y = [1, 3, 1, 3]
+
+values = np.array(list(zip(x, y)))
+
+centroids_x = [2.5, 2.5]
+centroids_y = [1, 3]
+
+centroids = np.array(list(zip(centroids_x, centroids_y)))
+
+model = KMeans(init="k-means++", n_clusters=2)
+# Initial centroids
+# plt.scatter(centroids[:, 0], centroids[:, 1], marker='D', s=100)
+
+results = model.fit_predict(values)
+
+plt.scatter(x, y, c=results, alpha=1)
+
+# Cluster centers
+plt.scatter(model.cluster_centers_[:, 0], model.cluster_centers_[:, 1], marker='v', s=100)
+
+ax = plt.subplot()
+ax.set_xticks([0, 1, 2, 3, 4, 5])
+ax.set_yticks([0, 1, 2, 3, 4])
+
+plt.title('K-Means++ Initialization')
+plt.show()
+print("The model's inertia is " + str(model.inertia_))
+
+### example ###
+
+import codecademylib3_seaborn
+def warn(*args, **kwargs):
+    pass
+import warnings
+warnings.warn = warn
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn import datasets
+from copy import deepcopy
+from sklearn.cluster import KMeans
+
+std = 0.5
+
+x = np.append(np.append(np.append(np.random.normal(0.25,std,100), np.random.normal(0.75,std,100)), np.random.normal(0.25,std,100)), np.random.normal(0.75,std,100))
+
+y = np.append(np.append(np.append(np.random.normal(0.25,std,100), np.random.normal(0.25,std,100)), np.random.normal(0.75,std,100)), np.random.normal(0.75,std,100))
+
+values = np.array(list(zip(x, y)))
+
+centroids_x = [2.5, 2.5]
+centroids_y = [1, 3]
+
+centroids = np.array(list(zip(centroids_x, centroids_y)))
+
+model_custom = KMeans(init=centroids, n_clusters=2)
+results_custom = model_custom.fit_predict(values)
+
+model = KMeans(init='k-means++', n_clusters=2)
+results = model.fit_predict(values)
+
+plt.scatter(x, y, c=results_custom, alpha=1)
+plt.scatter(model_custom.cluster_centers_[:, 0], model_custom.cluster_centers_[:, 1], marker='v', s=100)
+plt.scatter(centroids[:, 0], centroids[:, 1], marker='D', s=100)
+plt.title('Custom Initialization')
+plt.show()
+plt.cla()
+
+plt.scatter(x, y, c=results, alpha=1)
+plt.scatter(model.cluster_centers_[:, 0], model.cluster_centers_[:, 1], marker='v', s=100)
+plt.title('K-Means++ Initialization')
+plt.show()
+
+print("The custom model's inertia is " + str(model_custom.inertia_))
+print("The K-means++ model's inertia is " + str(model.inertia_))
+
+### scikit-learn example #####
+
+print(__doc__)
+
+from time import time
+import numpy as np
+import matplotlib.pyplot as plt
+
+from sklearn import metrics
+from sklearn.cluster import KMeans
+from sklearn.datasets import load_digits
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import scale
+
+np.random.seed(42)
+
+X_digits, y_digits = load_digits(return_X_y=True)
+data = scale(X_digits)
+
+n_samples, n_features = data.shape
+n_digits = len(np.unique(y_digits))
+labels = y_digits
+
+sample_size = 300
+
+print("n_digits: %d, \t n_samples %d, \t n_features %d"
+      % (n_digits, n_samples, n_features))
+
+
+print(82 * '_')
+print('init\t\ttime\tinertia\thomo\tcompl\tv-meas\tARI\tAMI\tsilhouette')
+
+
+def bench_k_means(estimator, name, data):
+    t0 = time()
+    estimator.fit(data)
+    print('%-9s\t%.2fs\t%i\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f'
+          % (name, (time() - t0), estimator.inertia_,
+             metrics.homogeneity_score(labels, estimator.labels_),
+             metrics.completeness_score(labels, estimator.labels_),
+             metrics.v_measure_score(labels, estimator.labels_),
+             metrics.adjusted_rand_score(labels, estimator.labels_),
+             metrics.adjusted_mutual_info_score(labels,  estimator.labels_),
+             metrics.silhouette_score(data, estimator.labels_,
+                                      metric='euclidean',
+                                      sample_size=sample_size)))
+
+bench_k_means(KMeans(init='k-means++', n_clusters=n_digits, n_init=10),
+              name="k-means++", data=data)
+
+bench_k_means(KMeans(init='random', n_clusters=n_digits, n_init=10),
+              name="random", data=data)
+
+# in this case the seeding of the centers is deterministic, hence we run the
+# kmeans algorithm only once with n_init=1
+pca = PCA(n_components=n_digits).fit(data)
+bench_k_means(KMeans(init=pca.components_, n_clusters=n_digits, n_init=1),
+              name="PCA-based",
+              data=data)
+print(82 * '_')
+
+# #############################################################################
+# Visualize the results on PCA-reduced data
+
+reduced_data = PCA(n_components=2).fit_transform(data)
+kmeans = KMeans(init='k-means++', n_clusters=n_digits, n_init=10)
+kmeans.fit(reduced_data)
+
+# Step size of the mesh. Decrease to increase the quality of the VQ.
+h = .02     # point in the mesh [x_min, x_max]x[y_min, y_max].
+
+# Plot the decision boundary. For that, we will assign a color to each
+x_min, x_max = reduced_data[:, 0].min() - 1, reduced_data[:, 0].max() + 1
+y_min, y_max = reduced_data[:, 1].min() - 1, reduced_data[:, 1].max() + 1
+xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+
+# Obtain labels for each point in mesh. Use last trained model.
+Z = kmeans.predict(np.c_[xx.ravel(), yy.ravel()])
+
+# Put the result into a color plot
+Z = Z.reshape(xx.shape)
+plt.figure(1)
+plt.clf()
+plt.imshow(Z, interpolation='nearest',
+           extent=(xx.min(), xx.max(), yy.min(), yy.max()),
+           cmap=plt.cm.Paired,
+           aspect='auto', origin='lower')
+
+plt.plot(reduced_data[:, 0], reduced_data[:, 1], 'k.', markersize=2)
+# Plot the centroids as a white X
+centroids = kmeans.cluster_centers_
+plt.scatter(centroids[:, 0], centroids[:, 1],
+            marker='x', s=169, linewidths=3,
+            color='w', zorder=10)
+plt.title('K-means clustering on the digits dataset (PCA-reduced data)\n'
+          'Centroids are marked with white cross')
+plt.xlim(x_min, x_max)
+plt.ylim(y_min, y_max)
+plt.xticks(())
+plt.yticks(())
+plt.show()
+
+#### handwriting recognition using k-means ###
+
+import codecademylib3_seaborn
+import numpy as np
+from matplotlib import pyplot as plt
+from sklearn import datasets
+from sklearn.cluster import KMeans
+
+digits = datasets.load_digits()
+print(digits.DESCR)
+print(digits.data)
+print(digits.target)
+
+plt.gray() 
+
+plt.matshow(digits.images[100])
+
+plt.show()
+
+print(digits.target[100])
+
+# Figure size (width, height)
+
+fig = plt.figure(figsize=(6, 6))
+
+# Adjust the subplots 
+
+fig.subplots_adjust(left=0, right=1, bottom=0, top=1, hspace=0.05, wspace=0.05)
+
+# For each of the 64 images
+
+for i in range(64):
+
+    # Initialize the subplots: add a subplot in the grid of 8 by 8, at the i+1-th position
+
+    ax = fig.add_subplot(8, 8, i+1, xticks=[], yticks=[])
+
+    # Display an image at the i-th position
+
+    ax.imshow(digits.images[i], cmap=plt.cm.binary, interpolation='nearest')
+
+    # Label the image with the target value
+
+    ax.text(0, 7, str(digits.target[i]))
+
+plt.show()
+
+####################################
+
+# our test
+
+model = KMeans(n_clusters=10, random_state=42)
+model.fit(digits.data)
+
+fig = plt.figure(figsize=(8, 3))
+fig.suptitle('Cluster Center Images', fontsize=14, fontweight='bold')
+
+for i in range(10):
+
+  # Initialize subplots in a grid of 2X5, at i+1th position
+  ax = fig.add_subplot(2, 5, 1 + i)
+
+  # Display images
+  ax.imshow(model.cluster_centers_[i].reshape((8, 8)), cmap=plt.cm.binary)
+
+plt.show()
+
+new_samples = np.array([
+
+[0.00,0.08,3.12,6.10,5.64,0.08,0.00,0.00,0.38,5.33,7.62,6.63,7.62,2.97,0.00,0.00,4.73,7.55,3.43,0.08,5.64,7.40,1.37,0.00,7.62,4.57,0.00,0.00,0.61,7.24,5.18,0.00,6.25,6.63,0.31,0.00,0.31,6.86,4.88,0.00,2.06,7.55,4.73,0.61,5.11,7.55,1.83,0.00,0.00,3.96,7.62,7.62,7.62,3.35,0.00,0.00,0.00,0.00,2.14,3.05,1.52,0.00,0.00,0.00],
+
+[0.00,0.00,0.00,3.08,6.86,7.62,2.28,0.00,0.00,0.21,5.25,7.62,6.48,7.62,3.05,0.00,0.00,4.51,7.62,3.43,3.43,7.62,4.57,0.00,0.00,5.87,6.71,1.52,7.02,7.55,7.24,0.30,0.00,2.27,7.55,7.62,7.01,3.84,7.62,1.52,0.00,0.00,2.88,5.03,0.91,1.52,7.62,2.29,0.00,0.00,0.00,0.00,0.30,2.59,7.62,2.29,0.00,0.00,3.66,7.62,7.62,7.62,6.94,0.99],
+
+[0.00,0.00,0.07,3.97,7.37,0.53,0.00,0.00,0.00,0.23,5.18,7.62,5.18,0.00,0.00,0.00,0.00,5.41,7.62,7.62,5.90,1.45,0.00,0.00,1.09,7.62,4.57,3.73,7.02,6.56,0.00,0.00,0.46,7.40,5.03,0.00,5.42,6.71,0.00,0.00,0.00,3.73,7.62,5.87,7.62,4.04,0.00,0.00,0.00,0.23,6.64,7.47,3.64,0.15,0.00,0.00,0.00,0.00,0.30,0.52,0.00,0.00,0.00,0.00],
+
+[0.00,0.08,3.27,3.81,3.81,3.20,0.23,0.00,0.00,3.58,7.62,7.63,7.63,7.62,2.29,0.00,0.00,5.87,7.17,0.49,4.19,7.62,1.75,0.00,0.00,2.13,7.55,6.76,7.62,4.50,0.00,0.00,0.00,0.08,5.49,7.62,7.62,3.79,0.05,0.00,0.00,2.82,7.62,4.42,4.94,7.62,4.50,0.00,0.00,5.64,7.32,2.29,2.29,5.40,7.62,1.88,0.00,5.03,7.62,7.62,7.62,7.62,7.62,3.25]
+
+])
+new_labels = model.predict(new_samples)
+
+### group the label into which number it shows
+
+for i in range(len(new_labels)):
+  if new_labels[i] == 0:
+    print(0, end='')
+  elif new_labels[i] == 1:
+    print(9, end='')
+  elif new_labels[i] == 2:
+    print(2, end='')
+  elif new_labels[i] == 3:
+    print(1, end='')
+  elif new_labels[i] == 4:
+    print(6, end='')
+  elif new_labels[i] == 5:
+    print(8, end='')
+  elif new_labels[i] == 6:
+    print(4, end='')
+  elif new_labels[i] == 7:
+    print(5, end='')
+  elif new_labels[i] == 8:
+    print(7, end='')
+  elif new_labels[i] == 9:
+    print(3, end='')
